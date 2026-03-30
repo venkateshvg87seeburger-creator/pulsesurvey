@@ -29,6 +29,11 @@ async function login(){
  }else error.classList.remove("hidden");
 }
 
+function logout(){
+  localStorage.clear();
+  location.reload();
+}
+
 async function submit(){
  msg.innerText="Submitting...";
  try{
