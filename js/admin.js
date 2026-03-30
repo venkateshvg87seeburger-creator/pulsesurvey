@@ -55,7 +55,7 @@ function uploadCSV(){
 
 let last=null,page=1;
 
-async function loadFeed(next=true){
+async function loadFeed(next=false){
  let q=db.collection("feedbacks").orderBy("created_at","desc").limit(10);
  if(last && next) q=q.startAfter(last);
  let snap=await q.get();
@@ -72,4 +72,10 @@ async function loadFeed(next=true){
 }
 
 function next(){page++;loadFeed(true);}
-function prev(){if(page>1){page--;loadFeed(false);}}
+function prev(){
+  if(page>1){
+    page--;
+    last=null; // reset cursor
+    loadFeed(false);
+  }
+}
