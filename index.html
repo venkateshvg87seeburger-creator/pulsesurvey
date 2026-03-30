@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-gradient-to-br from-indigo-600 to-purple-600 min-h-screen flex items-center justify-center">
+
+<div class="card w-full max-w-md p-6">
+
+<div id="loginView">
+<h2 class="title text-center mb-4">Pulse</h2>
+<input id="empId" class="input mb-3" placeholder="Employee ID">
+<button onclick="login()" class="btn w-full">Continue</button>
+<p id="error" class="text-red-500 hidden mt-2">Invalid ID</p>
+</div>
+
+<div id="formView" class="hidden">
+<select id="department" class="input mb-2">
+<option>Consulting</option><option>Support</option>
+<option>Development</option><option>HR & Finance</option>
+</select>
+
+<select id="category" class="input mb-2">
+<option>Work Place Environment</option><option>Career Growth</option>
+<option>Rewards & Recognition</option><option>Company Policies</option>
+<option>Benefits</option><option>Others</option>
+</select>
+
+<textarea id="message" class="input mb-3" placeholder="Feedback"></textarea>
+<button onclick="submit()" class="btn w-full">Submit</button>
+<p id="msg" class="text-center mt-2"></p>
+</div>
+
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
