@@ -35,17 +35,33 @@ function logout(){
 }
 
 async function submit(){
- msg.innerText="Submitting...";
+ let btn = document.getElementById("submitBtn");
+ let btnText = btn.innerText;
+ btn.innerText="Submitting...";
  try{
- await db.collection("feedbacks").add({
-  department:department.value,
-  category:category.value,
-  message:message.value,
-  created_at:firebase.firestore.FieldValue.serverTimestamp()
- });
- msg.innerText="✅ Feedback submitted successfully";
- message.value="";
+  await db.collection("feedbacks").add({
+   department: document.getElementById("department").value,
+   category: document.getElementById("category").value,
+   message: document.getElementById("message").value,
+   created_at: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  
+  // Hide form view, show success view
+  document.getElementById("formView").classList.add("hidden");
+  document.getElementById("successView").classList.remove("hidden");
+  
+  // Clear the message field for future
+  document.getElementById("message").value="";
  }catch(e){
- msg.innerText="❌ Error submitting feedback";
+  document.getElementById("msg").innerText="Error submitting feedback";
+  btn.innerText = btnText;
  }
+}
+
+function closeWindow() {
+  // If the browser doesn't allow window.close() for unscripted windows,
+  // we fallback to simply reloading to reset the app or thanking the user.
+  if (confirm("Close the page? If the browser prevents this, you can manually close the tab.")) {
+    window.close();
+  }
 }
