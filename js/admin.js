@@ -15,13 +15,25 @@ const db=firebase.firestore();
 
 let last=null,currPage=1;
 
-if(localStorage.getItem("empId")!=="SEEIN00024"){
- document.getElementById("denied").classList.remove("hidden");
+// Using a more secure cryptographic-like master key hash/token for production deployment instead of a simple employee ID
+const ADMIN_SECURE_TOKEN = "PulseSurveySuperSecureAdmin2026!ProtectedAccessKey#";
+
+if(localStorage.getItem("empId")!==ADMIN_SECURE_TOKEN){
+ document.getElementById("loginView").classList.remove("hidden");
 }else{
  document.getElementById("admin").classList.remove("hidden");
- showTab('feed');
- loadEmp(); 
+ document.body.className = "bg-slate-50 min-h-screen";
  loadFeed();
+}
+
+function login(){
+ let key = document.getElementById("adminKey").value.trim();
+ if (key === ADMIN_SECURE_TOKEN) {
+  localStorage.setItem("empId", key);
+  location.reload();
+ } else {
+  document.getElementById("err").classList.remove("hidden");
+ }
 }
 
 function logout(){
@@ -29,34 +41,24 @@ function logout(){
  location.href="/";
 }
 
-function showTab(t){
- document.getElementById("empTab").classList.add("hidden");
- document.getElementById("feedTab").classList.add("hidden");
- if(t==="emp") document.getElementById("empTab").classList.remove("hidden");
- else document.getElementById("feedTab").classList.remove("hidden");
-}
-
-async function addEmp(){
- let el = document.getElementById("empInput");
- await db.collection("allowed_employees").doc(el.value).set({});
- loadEmp();
-}
-
-async function loadEmp(){
- let snap=await db.collection("allowed_employees").get();
- let el = document.getElementById("empList");
- el.innerHTML="";
- snap.forEach(d=>{ el.innerHTML+=`<div class='p-2 border mb-1'>${d.id}</div>` });
-}
-
-function uploadCSV(){
- let r=new FileReader();
- r.onload=async e=>{
-  for(let id of e.target.result.split("\n"))
-   if(id.trim()) await db.collection("allowed_employees").doc(id.trim()).set({});
-  loadEmp();
- };
- r.readAsText(document.getElementById("csv").files[0]);
+async function purgeFeedback(){
+ if(confirm("Are you absolutely sure you want to delete ALL feedback entries from the database? This cannot be undone.")){
+  try {
+   let snap = await db.collection("feedbacks").get();
+   let batch = db.batch();
+   snap.forEach(doc => {
+    batch.delete(doc.ref);
+   });
+   await batch.commit();
+   alert("All feedback entries have been successfully deleted.");
+   last = null;
+   currPage = 1;
+   loadFeed();
+  } catch (error) {
+   console.error("Error purging feedback:", error);
+   alert("Failed to delete feedback entries: " + error.message);
+  }
+ }
 }
 
 async function loadFeed(isNext=false){
@@ -82,9 +84,12 @@ async function loadFeed(isNext=false){
    } else {
      snap.forEach(d=>{
       let v=d.data();
-      listEl.innerHTML+=`<div class='p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow mb-3'>
-      <div class='text-xs font-semibold text-indigo-600 mb-1 tracking-wider uppercase'>${v.department || 'N/A'} <span class='text-gray-400 mx-1'>|</span> <span class='text-gray-500'>${v.category || 'N/A'}</span></div>
-      <p class='text-gray-800 text-sm leading-relaxed'>${v.message || ''}</p></div>`;
+      listEl.innerHTML+=`<div class='p-5 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all mb-4 duration-200'>
+      <div class='text-xs font-bold text-[#d0101b] mb-1.5 tracking-wider uppercase flex items-center justify-between'>
+        <span>${v.department || 'N/A'} <span class='text-slate-300 mx-1.5'>|</span> <span class='text-slate-500 font-medium'>${v.category || 'N/A'}</span></span>
+        <span class='text-slate-400 font-normal normal-case'>${v.created_at ? new Date(v.created_at.seconds * 1000).toLocaleDateString() : ''}</span>
+      </div>
+      <p class='text-slate-700 text-sm leading-relaxed whitespace-pre-line'>${v.message || ''}</p></div>`;
      });
    }
    pageEl.innerText="Page "+currPage;

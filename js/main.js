@@ -13,25 +13,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
-async function login(){
- let id=empId.value.trim();
-
- if(id==="SEEIN00024"){
-  localStorage.setItem("empId",id);
-  location.href="/admin-view.html";
-  return;
- }
-
- let doc=await db.collection("allowed_employees").doc(id).get();
- if(doc.exists){
-  loginView.classList.add("hidden");
-  formView.classList.remove("hidden");
- }else error.classList.remove("hidden");
-}
-
-function logout(){
-  localStorage.clear();
-  location.reload();
+function resetForm() {
+  document.getElementById("successView").classList.add("hidden");
+  document.getElementById("formView").classList.remove("hidden");
 }
 
 async function submit(){
